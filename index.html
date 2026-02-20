@@ -4,181 +4,400 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CreatorLens</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0a0a0f;
-    --surface: #12121a;
-    --surface-2: #1a1a26;
-    --border: #2a2a3a;
-    --text: #e8e6f0;
-    --text-dim: #8884a2;
-    --accent: #c084fc;
-    --accent-2: #a855f7;
-    --pink: #f472b6;
-    --green: #4ade80;
-    --cyan: #22d3ee;
-    --orange: #fb923c;
-    --red: #f87171;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-  }
-  body::before {
-    content:'';position:fixed;inset:0;
-    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
-    pointer-events:none;z-index:9999;
-  }
-  .orb {
-    position:fixed;border-radius:50%;filter:blur(120px);opacity:0.12;pointer-events:none;
-  }
-  .orb-1 { width:500px;height:500px;background:var(--accent);top:-200px;right:-100px; }
-  .orb-2 { width:350px;height:350px;background:var(--pink);bottom:100px;left:-80px; }
+:root {
+  --cream: #faf6f1;
+  --cream-2: #f3ede5;
+  --cream-3: #ebe4d9;
+  --white: #ffffff;
+  --border: rgba(0,0,0,0.07);
+  --border-h: rgba(0,0,0,0.12);
+  --text: #1a1a1a;
+  --text-2: #6b6b6b;
+  --text-3: #9a9a9a;
+  --green: #2d8a4e;
+  --green-bg: #e8f5ed;
+  --red: #c0392b;
+  --red-bg: #fde8e8;
+  --peach: #f5d6c3;
+  --peach-dark: #d4875e;
+  --lavender: #e5dff5;
+  --lavender-dark: #7c6bbd;
+  --mint: #d4f0e0;
+  --mint-dark: #3a9e6a;
+  --radius: 16px;
+  --radius-sm: 12px;
+  --radius-xs: 8px;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; }
+body {
+  background: var(--cream);
+  color: var(--text);
+  font-family: Helvetica, Arial, sans-serif;
+  display: flex;
+  overflow: hidden;
+}
 
-  .wrap { max-width:700px; width:100%; position:relative; z-index:1; }
+.sidebar {
+  width: 72px; flex-shrink: 0;
+  background: var(--white);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; align-items: center;
+  padding: 20px 0; gap: 6px;
+}
+.sb-logo {
+  width: 40px; height: 40px; background: var(--text);
+  border-radius: var(--radius-xs);
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 24px;
+}
+.sb-logo svg { width:20px; height:20px; color:#fff; }
+.sb-item {
+  width: 44px; height: 44px; border-radius: var(--radius-sm);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; transition: all 0.2s; color: var(--text-3);
+}
+.sb-item:hover { background: var(--cream); color: var(--text-2); }
+.sb-item.active { background: var(--cream-2); color: var(--text); }
+.sb-item svg { width:20px; height:20px; }
+.sb-spacer { flex:1; }
+.sb-avatar {
+  width: 36px; height: 36px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--peach), var(--lavender));
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 600; color: var(--text);
+}
 
-  /* LOGO */
-  .logo {
-    font-family:'Syne',sans-serif; font-weight:800; font-size:32px;
-    text-align:center; letter-spacing:-1px; margin-bottom:6px;
-    background:linear-gradient(135deg,var(--accent),var(--pink));
-    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-  }
-  .sub { text-align:center; font-size:13px; color:var(--text-dim); margin-bottom:40px; }
+.main { flex: 1; display: flex; overflow: hidden; }
 
-  /* INPUT BOX */
-  .input-box {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; padding:16px; margin-bottom:12px;
-  }
-  .input-row { display:flex; gap:10px; align-items:flex-end; }
-  textarea {
-    flex:1; min-height:52px; max-height:200px;
-    background:var(--surface-2); border:1px solid var(--border);
-    border-radius:12px; color:var(--text); font-family:'DM Sans',sans-serif;
-    font-size:14px; padding:14px 16px; resize:none; line-height:1.5;
-    transition:border-color 0.2s;
-  }
-  textarea:focus { outline:none; border-color:var(--accent); }
-  textarea::placeholder { color:var(--text-dim); }
-  .send {
-    width:52px;height:52px;flex-shrink:0;border:none;border-radius:14px;
-    background:linear-gradient(135deg,var(--accent-2),var(--pink));
-    color:#fff;font-size:20px;cursor:pointer;transition:all 0.3s;
-    display:flex;align-items:center;justify-content:center;
-  }
-  .send:hover { transform:translateY(-1px); box-shadow:0 4px 24px rgba(168,85,247,0.3); }
-  .send:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+.center {
+  flex: 1; overflow-y: auto;
+  padding: 32px 36px 60px;
+}
+.center::-webkit-scrollbar { width:6px; }
+.center::-webkit-scrollbar-thumb { background:var(--cream-3); border-radius:3px; }
 
-  /* QUICK PROMPTS */
-  .quick { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:32px; }
-  .qbtn {
-    background:var(--surface); border:1px solid var(--border);
-    color:var(--text-dim); padding:6px 14px; border-radius:20px;
-    font-size:12px; font-family:'DM Sans',sans-serif; cursor:pointer;
-    transition:all 0.2s;
-  }
-  .qbtn:hover { border-color:var(--accent); color:var(--accent); }
+.page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 4px; }
+.page-sub { font-size: 14px; color: var(--text-3); margin-bottom: 28px; }
 
-  /* ERROR */
-  .err {
-    display:none; background:rgba(248,113,113,0.08);
-    border:1px solid rgba(248,113,113,0.2); border-radius:10px;
-    padding:10px 14px; margin-top:12px; font-size:13px; color:var(--red);
-  }
-  .err.on { display:block; }
+.section-title {
+  font-size: 13px; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 14px;
+}
 
-  /* LOADING */
-  .loading { display:none; text-align:center; padding:40px 0; }
-  .loading.on { display:block; }
-  .spinner {
-    width:32px;height:32px;border:3px solid var(--border);
-    border-top-color:var(--accent);border-radius:50%;
-    animation:spin .8s linear infinite; margin:0 auto 12px;
-  }
-  @keyframes spin { to{transform:rotate(360deg)} }
-  .ltxt { font-size:13px;color:var(--text-dim);animation:pulse 1.5s ease infinite; }
-  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+/* ── AI SECTION (hero) ── */
+.ai-section {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  margin-bottom: 28px;
+}
+.ai-header {
+  padding: 18px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.ai-title { font-size: 14px; font-weight: 700; color: var(--text); }
+.ai-live {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 11px; font-weight: 600; color: var(--green);
+}
+.ai-live-dot { width:6px; height:6px; border-radius:50%; background:var(--green); animation:blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1}50%{opacity:0.3} }
 
-  /* RESULTS */
-  .results { display:none; }
-  .results.on { display:block; }
-  .results-label {
-    font-family:'Syne',sans-serif; font-weight:700; font-size:18px;
-    margin-bottom:14px; display:flex; align-items:center; gap:8px;
-  }
-  .rbox {
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:16px; padding:28px; line-height:1.8; font-size:14px;
-  }
-  .rbox h2 {
-    font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--accent);
-    margin-top:24px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);
-  }
-  .rbox h2:first-child { margin-top:0; }
-  .rbox h3 { font-family:'Syne',sans-serif;font-weight:600;font-size:14px;color:var(--pink);margin-top:18px;margin-bottom:6px; }
-  .rbox p { margin-bottom:8px; }
-  .rbox strong { color:var(--green); }
-  .rbox em { color:var(--cyan); font-style:normal; }
-  .rbox ul,.rbox ol { margin:6px 0 14px 18px; }
-  .rbox li { margin-bottom:4px; }
-  .rbox code { background:var(--surface-2);padding:2px 6px;border-radius:4px;font-size:13px;color:var(--orange); }
+.ai-prompt-area {
+  padding: 28px 24px;
+  background: var(--cream);
+  border-bottom: 1px solid var(--border);
+}
+.ai-prompt-label {
+  font-size: 12px; font-weight: 600; color: var(--text-2);
+  text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px;
+}
+.ai-textarea {
+  width: 100%; min-height: 160px;
+  background: var(--white);
+  border: 1.5px dashed var(--border-h);
+  border-radius: var(--radius);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 15px; color: var(--text);
+  padding: 20px; resize: vertical; line-height: 1.6;
+  transition: border-color 0.2s;
+}
+.ai-textarea:focus { outline:none; border-color: var(--text-3); border-style: solid; }
+.ai-textarea::placeholder { color: var(--text-3); font-size: 14px; }
+.ai-prompt-footer {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-top: 14px;
+}
+.ai-send {
+  padding: 12px 32px; background: var(--text); color: var(--white);
+  font-family: Helvetica, Arial, sans-serif;
+  font-size: 13px; font-weight: 600;
+  border: none; border-radius: var(--radius-sm);
+  cursor: pointer; transition: all 0.2s;
+}
+.ai-send:hover { opacity:0.85; }
+.ai-send:disabled { opacity:0.3; cursor:not-allowed; }
+.ai-hint { font-size: 11px; color: var(--text-3); }
 
-  @media(max-width:600px) { .quick { gap:6px; } }
+.ai-chips {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  padding: 16px 24px; border-bottom: 1px solid var(--border);
+}
+.chip {
+  padding: 8px 18px; background: var(--cream);
+  border: 1px solid var(--border); border-radius: 20px;
+  font-size: 12px; font-weight: 500; color: var(--text-2);
+  cursor: pointer; transition: all 0.2s;
+  font-family: Helvetica, Arial, sans-serif;
+}
+.chip:hover { border-color: var(--text-3); color: var(--text); background: var(--cream-2); }
+
+.ai-body { padding: 24px; min-height: 60px; }
+.ai-placeholder { font-size: 13px; color: var(--text-3); line-height: 1.6; text-align:center; padding: 20px 0; }
+.ai-loading { display:none; padding:40px 24px; text-align:center; }
+.ai-loading.on { display:block; }
+.ai-spinner {
+  width:24px;height:24px;border:2.5px solid var(--cream-3);border-top-color:var(--text);
+  border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+.ai-loading-text { font-size:12px; color:var(--text-3); animation:pulse 1.5s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.4} }
+
+.ai-result { display:none; }
+.ai-result.on { display:block; }
+.ai-result-body { font-size: 14px; line-height: 1.8; color: var(--text-2); }
+.ai-result-body h2 {
+  font-size: 16px; font-weight: 700; color: var(--text);
+  margin: 22px 0 8px; padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+.ai-result-body h2:first-child { margin-top:0; }
+.ai-result-body h3 { font-size: 14px; font-weight: 600; color: var(--peach-dark); margin: 16px 0 4px; }
+.ai-result-body p { margin-bottom: 8px; }
+.ai-result-body strong { color: var(--text); }
+.ai-result-body em { color: var(--lavender-dark); font-style: normal; }
+.ai-result-body ul, .ai-result-body ol { margin: 8px 0 14px 18px; }
+.ai-result-body li { margin-bottom: 4px; }
+.ai-result-body code {
+  background: var(--cream-2); padding: 2px 6px; border-radius: 4px;
+  font-size: 12px; color: var(--peach-dark);
+}
+.ai-error {
+  display:none; padding: 12px 24px;
+  font-size: 12px; color: var(--red); background: var(--red-bg);
+}
+.ai-error.on { display:block; }
+
+/* ── POST CARDS ── */
+.posts-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 14px; margin-bottom: 28px;
+}
+.post-card {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 20px; transition: box-shadow 0.2s; position: relative;
+}
+.post-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,0.04); }
+.post-card:nth-child(1) { background: var(--mint); }
+.post-card:nth-child(2) { background: var(--lavender); }
+.post-card:nth-child(3) { background: var(--peach); }
+.pc-badge {
+  display: inline-block; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 3px 10px; border-radius: 20px; margin-bottom: 12px;
+}
+.post-card:nth-child(1) .pc-badge { background: rgba(255,255,255,0.6); color: var(--mint-dark); }
+.post-card:nth-child(2) .pc-badge { background: rgba(255,255,255,0.6); color: var(--lavender-dark); }
+.post-card:nth-child(3) .pc-badge { background: rgba(255,255,255,0.6); color: var(--peach-dark); }
+.pc-caption {
+  font-size: 14px; font-weight: 600; line-height: 1.4; margin-bottom: 14px;
+  display: -webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.pc-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 16px; }
+.pc-stat-label { font-size: 11px; color: rgba(0,0,0,0.4); }
+.pc-stat-value { font-size: 13px; font-weight: 600; }
+
+/* ── RIGHT PANEL ── */
+.right-panel {
+  width: 280px; flex-shrink: 0;
+  background: var(--white);
+  border-left: 1px solid var(--border);
+  overflow-y: auto; padding: 28px 22px;
+}
+.right-panel::-webkit-scrollbar { width:4px; }
+.right-panel::-webkit-scrollbar-thumb { background:var(--cream-3); border-radius:2px; }
+
+.rp-profile { text-align: center; margin-bottom: 24px; }
+.rp-avatar {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--peach), var(--lavender));
+  margin: 0 auto 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; font-weight: 700; color: var(--text);
+}
+.rp-name { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+.rp-handle { font-size: 13px; color: var(--text-3); }
+
+.rp-section-title {
+  font-size: 11px; font-weight: 600; color: var(--text-3);
+  text-transform: uppercase; letter-spacing: 0.8px; margin: 20px 0 12px;
+}
+.rp-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+}
+.rp-row:last-child { border-bottom: none; }
+.rp-row-label { font-size: 13px; color: var(--text); }
+.rp-row-value { font-size: 13px; font-weight: 600; display: flex; align-items: center; gap: 4px; }
+.rp-arrow { color: var(--green); font-size: 12px; }
+.rp-chevron { color: var(--text-3); font-size: 14px; }
+
+.rp-tools-list { list-style: none; }
+.rp-tool {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--border);
+  font-size: 13px; color: var(--text-2); cursor: pointer; transition: color 0.2s;
+}
+.rp-tool:last-child { border-bottom: none; }
+.rp-tool:hover { color: var(--text); }
+.rp-tool-icon { font-size: 16px; width: 22px; text-align: center; }
+.rp-tool-chevron { margin-left: auto; color: var(--text-3); font-size: 14px; }
+
+@media(max-width:1100px) { .right-panel { display:none; } }
+@media(max-width:768px) {
+  .sidebar { display:none; }
+  .posts-grid { grid-template-columns: 1fr; }
+  .center { padding: 20px; }
+}
 </style>
 </head>
 <body>
-<div class="orb orb-1"></div>
-<div class="orb orb-2"></div>
-<div class="wrap">
 
-  <div class="logo">CreatorLens</div>
-  <div class="sub">AI-Powered Content Strategist</div>
+<aside class="sidebar">
+  <div class="sb-logo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3l-6 18"/><path d="M4 8h16"/></svg></div>
+  <div class="sb-item active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/></svg></div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+  <div class="sb-spacer"></div>
+  <div class="sb-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="3"/><path d="M12 1v2m0 18v2m-9-11h2m18 0h2m-3.3-6.7l-1.4 1.4M4.7 19.3l-1.4 1.4m0-15.4l1.4 1.4m14.2 14.2l1.4 1.4"/></svg></div>
+  <div class="sb-avatar">F</div>
+</aside>
 
-  <div class="input-box">
-    <div class="input-row">
-      <textarea id="prompt" placeholder="Ask anything about the creator's content..." rows="1"></textarea>
-      <button class="send" id="btn" onclick="send()">→</button>
+<div class="main">
+  <div class="center">
+    <div class="page-title">CreatorLens</div>
+    <div class="page-sub">AI-powered content diagnostics</div>
+
+    <!-- AI PROMPT (hero section) -->
+    <div class="ai-section">
+      <div class="ai-header">
+        <div class="ai-title">AI Strategist</div>
+        <div class="ai-live"><div class="ai-live-dot"></div> Ready</div>
+      </div>
+      <div class="ai-prompt-area">
+        <div class="ai-prompt-label">What do you want to know?</div>
+        <textarea class="ai-textarea" id="prompt" placeholder="Paste your content, describe your goals, or ask a question about your analytics…&#10;&#10;Examples:&#10;• Why did my viral post outperform the others?&#10;• Write me 3 scripts based on what's working&#10;• How can I improve my underperforming content?" rows="6"></textarea>
+        <div class="ai-prompt-footer">
+          <div class="ai-hint">Ctrl + Enter to send</div>
+          <button class="ai-send" id="btn" onclick="send()">Analyze</button>
+        </div>
+      </div>
+      <div class="ai-chips">
+        <button class="chip" onclick="go('Give me a full content analysis with diagnosis and 3 new scripts')">Full Analysis</button>
+        <button class="chip" onclick="go('Write 5 new video scripts based on what works')">Generate Scripts</button>
+        <button class="chip" onclick="go('Why did Post 2 go viral and Post 1 flop?')">Viral Breakdown</button>
+        <button class="chip" onclick="go('How could I fix Post 1 to perform better?')">Fix Underperformers</button>
+      </div>
+      <div class="ai-error" id="err"></div>
+      <div class="ai-loading" id="loading">
+        <div class="ai-spinner"></div>
+        <div class="ai-loading-text" id="ltxt">Analyzing content patterns…</div>
+      </div>
+      <div class="ai-result" id="results">
+        <div class="ai-body"><div class="ai-result-body" id="rbox"></div></div>
+      </div>
+      <div id="placeholder-body">
+        <div class="ai-body">
+          <div class="ai-placeholder">Select a quick action or type your own question to get personalized content strategy insights and script ideas.</div>
+        </div>
+      </div>
     </div>
-    <div class="err" id="err"></div>
+
+    <!-- Posts -->
+    <div class="section-title">Recent Posts</div>
+    <div class="posts-grid">
+      <div class="post-card">
+        <div class="pc-badge">🔥 Viral — 5.1M views</div>
+        <div class="pc-caption">"us continuing to beat our dead horses into 2026"</div>
+        <div class="pc-stats">
+          <div><div class="pc-stat-label">Likes</div><div class="pc-stat-value">443,973</div></div>
+          <div><div class="pc-stat-label">Shares</div><div class="pc-stat-value">69,684</div></div>
+          <div><div class="pc-stat-label">Saves</div><div class="pc-stat-value">66,070</div></div>
+          <div><div class="pc-stat-label">Skip Rate</div><div class="pc-stat-value">31.1%</div></div>
+        </div>
+      </div>
+      <div class="post-card">
+        <div class="pc-badge">📈 Mid — 337K views</div>
+        <div class="pc-caption">"always beating that damn horse. 😭"</div>
+        <div class="pc-stats">
+          <div><div class="pc-stat-label">Likes</div><div class="pc-stat-value">30,180</div></div>
+          <div><div class="pc-stat-label">Shares</div><div class="pc-stat-value">13,527</div></div>
+          <div><div class="pc-stat-label">Saves</div><div class="pc-stat-value">517</div></div>
+          <div><div class="pc-stat-label">Skip Rate</div><div class="pc-stat-value">47.6%</div></div>
+        </div>
+      </div>
+      <div class="post-card">
+        <div class="pc-badge">📉 Low — 30K views</div>
+        <div class="pc-caption">"wanted to post this video here as appreciation..."</div>
+        <div class="pc-stats">
+          <div><div class="pc-stat-label">Likes</div><div class="pc-stat-value">1,125</div></div>
+          <div><div class="pc-stat-label">Shares</div><div class="pc-stat-value">382</div></div>
+          <div><div class="pc-stat-label">Saves</div><div class="pc-stat-value">237</div></div>
+          <div><div class="pc-stat-label">Skip Rate</div><div class="pc-stat-value">47.9%</div></div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="quick">
-    <button class="qbtn" onclick="go('Give me a full content analysis with diagnosis and 3 new scripts')">Full Analysis</button>
-    <button class="qbtn" onclick="go('Write 5 new video scripts based on what works')">Generate Scripts</button>
-    <button class="qbtn" onclick="go('Why did Post 2 go viral and Post 1 flop?')">Viral Breakdown</button>
-    <button class="qbtn" onclick="go('How could I fix Post 1 to perform better?')">Fix Post 1</button>
-  </div>
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="rp-profile">
+      <div class="rp-avatar">F</div>
+      <div class="rp-name">Fiori</div>
+      <div class="rp-handle">@fiori</div>
+    </div>
 
-  <div class="loading" id="loading">
-    <div class="spinner"></div>
-    <div class="ltxt" id="ltxt">Analyzing content patterns...</div>
-  </div>
+    <div class="rp-section-title">Insights · Jan 21 – Feb 19</div>
+    <div>
+      <div class="rp-row"><div class="rp-row-label">Views</div><div class="rp-row-value"><span class="rp-arrow">↗</span> 6.1M <span class="rp-chevron">›</span></div></div>
+      <div class="rp-row"><div class="rp-row-label">Interactions</div><div class="rp-row-value"><span class="rp-arrow">↗</span> 794.0K <span class="rp-chevron">›</span></div></div>
+      <div class="rp-row"><div class="rp-row-label">New followers</div><div class="rp-row-value"><span class="rp-arrow">↗</span> 1.4K <span class="rp-chevron">›</span></div></div>
+      <div class="rp-row"><div class="rp-row-label">Content shared</div><div class="rp-row-value">22 <span class="rp-chevron">›</span></div></div>
+    </div>
 
-  <div class="results" id="results">
-    <div class="results-label">✨ AI Analysis</div>
-    <div class="rbox" id="rbox"></div>
+    <div class="rp-section-title">Your tools</div>
+    <ul class="rp-tools-list">
+      <li class="rp-tool"><span class="rp-tool-icon">⏱</span> Monthly recap <span class="rp-tool-chevron">›</span></li>
+      <li class="rp-tool"><span class="rp-tool-icon">✦</span> Best practices <span class="rp-tool-chevron">›</span></li>
+      <li class="rp-tool"><span class="rp-tool-icon">💡</span> Inspiration <span class="rp-tool-chevron">›</span></li>
+      <li class="rp-tool"><span class="rp-tool-icon">📊</span> Analytics deep dive <span class="rp-tool-chevron">›</span></li>
+      <li class="rp-tool"><span class="rp-tool-icon">🎬</span> Script vault <span class="rp-tool-chevron">›</span></li>
+    </ul>
   </div>
-
 </div>
+
 <script>
-// ======================================
-// CHANGE THIS to your n8n webhook URL
-// ======================================
-const BACKEND_URL = 'https://YOUR-N8N-WEBHOOK-URL.app.n8n.cloud/webhook/analyze';
+const BACKEND_URL = 'YOUR_N8N_WEBHOOK_URL'; // ← paste your n8n webhook URL here
 
 function go(t) { document.getElementById('prompt').value = t; send(); }
 
-const LMSGS = ["Analyzing content patterns...","Comparing engagement signals...","Mining share-to-comment ratios...","Generating strategic insights...","Crafting scripts..."];
+const LMSGS = ["Analyzing content patterns…","Comparing engagement signals…","Mining share-to-comment ratios…","Generating strategic insights…","Crafting scripts…"];
 
 function md(t) {
   return t
@@ -199,41 +418,39 @@ async function send() {
   const err = document.getElementById('err');
   const btn = document.getElementById('btn');
   err.classList.remove('on');
-  if (!p) { err.textContent='⚠️ Type a question or click a quick prompt.'; err.classList.add('on'); return; }
+  if (!p) { err.textContent = 'Type a question or pick a quick action.'; err.classList.add('on'); return; }
 
   btn.disabled = true;
+  document.getElementById('placeholder-body').style.display = 'none';
   document.getElementById('loading').classList.add('on');
   document.getElementById('results').classList.remove('on');
 
-  let i=0;
-  const iv = setInterval(()=>{ i=(i+1)%LMSGS.length; document.getElementById('ltxt').textContent=LMSGS[i]; },2000);
+  let i = 0;
+  const iv = setInterval(() => { i = (i+1) % LMSGS.length; document.getElementById('ltxt').textContent = LMSGS[i]; }, 2200);
 
   try {
     const res = await fetch(BACKEND_URL, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ prompt: p })
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ question: p })
     });
     const data = await res.json();
-
-    // Adjust key to match whatever your backend returns
-    const text = data.response || data.output || data.text || data.message || JSON.stringify(data);
-
+    const text = data.output || data.response || data.text || data.message || JSON.stringify(data);
     clearInterval(iv);
     document.getElementById('loading').classList.remove('on');
     document.getElementById('rbox').innerHTML = md(text);
     document.getElementById('results').classList.add('on');
-    document.getElementById('results').scrollIntoView({behavior:'smooth'});
   } catch(e) {
     clearInterval(iv);
     document.getElementById('loading').classList.remove('on');
-    err.textContent='❌ Could not reach backend: '+e.message;
+    err.textContent = 'Could not reach backend: ' + e.message;
     err.classList.add('on');
-  } finally { btn.disabled=false; }
+    document.getElementById('placeholder-body').style.display = '';
+  } finally { btn.disabled = false; }
 }
 
-document.getElementById('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))send();});
-document.getElementById('prompt').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,200)+'px';});
+const ta = document.getElementById('prompt');
+ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) send(); });
 </script>
 </body>
 </html>

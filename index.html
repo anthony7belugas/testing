@@ -724,7 +724,7 @@ async function send() {
         body: JSON.stringify({ question: p })
       });
       const data = await res.json();
-      text = data.output || data.response || data.text || data.message || null;
+      text = data.answer || data.output || data.response || data.text || null;
     }
   } catch(e) {
     // Backend failed — will use fallback

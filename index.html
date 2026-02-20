@@ -1,1 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CreatorLens</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --surface-2: #1a1a26;
+    --border: #2a2a3a;
+    --text: #e8e6f0;
+    --text-dim: #8884a2;
+    --accent: #c084fc;
+    --accent-2: #a855f7;
+    --pink: #f472b6;
+    --green: #4ade80;
+    --cyan: #22d3ee;
+    --orange: #fb923c;
+    --red: #f87171;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+  }
+  body::before {
+    content:'';position:fixed;inset:0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events:none;z-index:9999;
+  }
+  .orb {
+    position:fixed;border-radius:50%;filter:blur(120px);opacity:0.12;pointer-events:none;
+  }
+  .orb-1 { width:500px;height:500px;background:var(--accent);top:-200px;right:-100px; }
+  .orb-2 { width:350px;height:350px;background:var(--pink);bottom:100px;left:-80px; }
 
+  .wrap { max-width:700px; width:100%; position:relative; z-index:1; }
+
+  /* LOGO */
+  .logo {
+    font-family:'Syne',sans-serif; font-weight:800; font-size:32px;
+    text-align:center; letter-spacing:-1px; margin-bottom:6px;
+    background:linear-gradient(135deg,var(--accent),var(--pink));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .sub { text-align:center; font-size:13px; color:var(--text-dim); margin-bottom:40px; }
+
+  /* INPUT BOX */
+  .input-box {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:16px; margin-bottom:12px;
+  }
+  .input-row { display:flex; gap:10px; align-items:flex-end; }
+  textarea {
+    flex:1; min-height:52px; max-height:200px;
+    background:var(--surface-2); border:1px solid var(--border);
+    border-radius:12px; color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:14px; padding:14px 16px; resize:none; line-height:1.5;
+    transition:border-color 0.2s;
+  }
+  textarea:focus { outline:none; border-color:var(--accent); }
+  textarea::placeholder { color:var(--text-dim); }
+  .send {
+    width:52px;height:52px;flex-shrink:0;border:none;border-radius:14px;
+    background:linear-gradient(135deg,var(--accent-2),var(--pink));
+    color:#fff;font-size:20px;cursor:pointer;transition:all 0.3s;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .send:hover { transform:translateY(-1px); box-shadow:0 4px 24px rgba(168,85,247,0.3); }
+  .send:disabled { opacity:0.4; cursor:not-allowed; transform:none; }
+
+  /* QUICK PROMPTS */
+  .quick { display:flex; gap:8px; flex-wrap:wrap; justify-content:center; margin-bottom:32px; }
+  .qbtn {
+    background:var(--surface); border:1px solid var(--border);
+    color:var(--text-dim); padding:6px 14px; border-radius:20px;
+    font-size:12px; font-family:'DM Sans',sans-serif; cursor:pointer;
+    transition:all 0.2s;
+  }
+  .qbtn:hover { border-color:var(--accent); color:var(--accent); }
+
+  /* ERROR */
+  .err {
+    display:none; background:rgba(248,113,113,0.08);
+    border:1px solid rgba(248,113,113,0.2); border-radius:10px;
+    padding:10px 14px; margin-top:12px; font-size:13px; color:var(--red);
+  }
+  .err.on { display:block; }
+
+  /* LOADING */
+  .loading { display:none; text-align:center; padding:40px 0; }
+  .loading.on { display:block; }
+  .spinner {
+    width:32px;height:32px;border:3px solid var(--border);
+    border-top-color:var(--accent);border-radius:50%;
+    animation:spin .8s linear infinite; margin:0 auto 12px;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+  .ltxt { font-size:13px;color:var(--text-dim);animation:pulse 1.5s ease infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.5} }
+
+  /* RESULTS */
+  .results { display:none; }
+  .results.on { display:block; }
+  .results-label {
+    font-family:'Syne',sans-serif; font-weight:700; font-size:18px;
+    margin-bottom:14px; display:flex; align-items:center; gap:8px;
+  }
+  .rbox {
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:16px; padding:28px; line-height:1.8; font-size:14px;
+  }
+  .rbox h2 {
+    font-family:'Syne',sans-serif;font-weight:700;font-size:17px;color:var(--accent);
+    margin-top:24px;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border);
+  }
+  .rbox h2:first-child { margin-top:0; }
+  .rbox h3 { font-family:'Syne',sans-serif;font-weight:600;font-size:14px;color:var(--pink);margin-top:18px;margin-bottom:6px; }
+  .rbox p { margin-bottom:8px; }
+  .rbox strong { color:var(--green); }
+  .rbox em { color:var(--cyan); font-style:normal; }
+  .rbox ul,.rbox ol { margin:6px 0 14px 18px; }
+  .rbox li { margin-bottom:4px; }
+  .rbox code { background:var(--surface-2);padding:2px 6px;border-radius:4px;font-size:13px;color:var(--orange); }
+
+  @media(max-width:600px) { .quick { gap:6px; } }
+</style>
+</head>
+<body>
+<div class="orb orb-1"></div>
+<div class="orb orb-2"></div>
+<div class="wrap">
+
+  <div class="logo">CreatorLens</div>
+  <div class="sub">AI-Powered Content Strategist</div>
+
+  <div class="input-box">
+    <div class="input-row">
+      <textarea id="prompt" placeholder="Ask anything about the creator's content..." rows="1"></textarea>
+      <button class="send" id="btn" onclick="send()">→</button>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="quick">
+    <button class="qbtn" onclick="go('Give me a full content analysis with diagnosis and 3 new scripts')">Full Analysis</button>
+    <button class="qbtn" onclick="go('Write 5 new video scripts based on what works')">Generate Scripts</button>
+    <button class="qbtn" onclick="go('Why did Post 2 go viral and Post 1 flop?')">Viral Breakdown</button>
+    <button class="qbtn" onclick="go('How could I fix Post 1 to perform better?')">Fix Post 1</button>
+  </div>
+
+  <div class="loading" id="loading">
+    <div class="spinner"></div>
+    <div class="ltxt" id="ltxt">Analyzing content patterns...</div>
+  </div>
+
+  <div class="results" id="results">
+    <div class="results-label">✨ AI Analysis</div>
+    <div class="rbox" id="rbox"></div>
+  </div>
+
+</div>
+<script>
+// ======================================
+// CHANGE THIS to your n8n webhook URL
+// ======================================
+const BACKEND_URL = 'https://YOUR-N8N-WEBHOOK-URL.app.n8n.cloud/webhook/analyze';
+
+function go(t) { document.getElementById('prompt').value = t; send(); }
+
+const LMSGS = ["Analyzing content patterns...","Comparing engagement signals...","Mining share-to-comment ratios...","Generating strategic insights...","Crafting scripts..."];
+
+function md(t) {
+  return t
+    .replace(/### (.*)/g,'<h3>$1</h3>')
+    .replace(/## (.*)/g,'<h2>$1</h2>')
+    .replace(/# (.*)/g,'<h2>$1</h2>')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g,'<em>$1</em>')
+    .replace(/`(.*?)`/g,'<code>$1</code>')
+    .replace(/^- (.*)/gm,'<li>$1</li>')
+    .replace(/^(\d+)\. (.*)/gm,'<li>$2</li>')
+    .replace(/\n\n/g,'</p><p>')
+    .replace(/\n/g,'<br>');
+}
+
+async function send() {
+  const p = document.getElementById('prompt').value.trim();
+  const err = document.getElementById('err');
+  const btn = document.getElementById('btn');
+  err.classList.remove('on');
+  if (!p) { err.textContent='⚠️ Type a question or click a quick prompt.'; err.classList.add('on'); return; }
+
+  btn.disabled = true;
+  document.getElementById('loading').classList.add('on');
+  document.getElementById('results').classList.remove('on');
+
+  let i=0;
+  const iv = setInterval(()=>{ i=(i+1)%LMSGS.length; document.getElementById('ltxt').textContent=LMSGS[i]; },2000);
+
+  try {
+    const res = await fetch(BACKEND_URL, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ prompt: p })
+    });
+    const data = await res.json();
+
+    // Adjust key to match whatever your backend returns
+    const text = data.response || data.output || data.text || data.message || JSON.stringify(data);
+
+    clearInterval(iv);
+    document.getElementById('loading').classList.remove('on');
+    document.getElementById('rbox').innerHTML = md(text);
+    document.getElementById('results').classList.add('on');
+    document.getElementById('results').scrollIntoView({behavior:'smooth'});
+  } catch(e) {
+    clearInterval(iv);
+    document.getElementById('loading').classList.remove('on');
+    err.textContent='❌ Could not reach backend: '+e.message;
+    err.classList.add('on');
+  } finally { btn.disabled=false; }
+}
+
+document.getElementById('prompt').addEventListener('keydown',e=>{if(e.key==='Enter'&&(e.ctrlKey||e.metaKey))send();});
+document.getElementById('prompt').addEventListener('input',function(){this.style.height='auto';this.style.height=Math.min(this.scrollHeight,200)+'px';});
+</script>
+</body>
+</html>
